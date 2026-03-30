@@ -1,6 +1,6 @@
-# Earthquake hypocenter location
-Bayesian earthquake hypocenter location from direct P- and S-wave
-arrival times in a layered 1D medium
+# Earthquake hypocenter location in Bayesian framework
+Bayesian earthquake hypocenter location from body P- and S-wave
+arrival times in a layered 1D medium (including uncertainty)
 ***************************************
 
   Open-source Matlab functions for assessment of the earthquake
@@ -16,32 +16,39 @@ uncertainty.
   Hallo, M., Opršal, I., Asano, K., Gallovič, F. (2019). Seismotectonics
 of the 2018 Northern Osaka M6.1 earthquake and its aftershocks: joint
 movements on strike-slip and reverse faults in inland Japan, Earth,
-Planets and Space, 71:34.
+Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://doi.org/10.1186/s40623-019-1016-8)
 
-2 PACKAGE CONTENT
+2 TECHNICAL IMPLEMENTATION
 ===================
 
-  a) "crustal.dat" - 1D velocity model of Earth's crust
-  
-  b) "a1_Pert_Model.m" - Matlab function that perturb velocity model and
-  perform Monte-Carlo simulations to get uncertainties of P and S wave
-  arrival times
-  
-  c) "a2_LatLon2xyz.m" - Matlab function that converts coordinates of
-  stations from WGS84 Lat/Lon into local coordinates Easting/Northing
-  
-  d) "a3_hypo_homo.m" - Matlab function that compute earthquake
-  hypocenter location by grid search method in the homogeneous medium
-  
-  e) "a4_hypo_layer.m" - Matlab function that compute earthquake
-  hypocenter location by grid search method in the 1D layered medium
+Bayesian Inference, Grid Search (3D), Markov Chain Monte Carlo (MCMC) 
+Simulation, Uncertainty Quantification, Cross-Platform (Windows, Linux)
 
-3 REQUIREMENTS
+3 PACKAGE CONTENT
 ===================
 
-  MATLAB: Codes do not require any additional Matlab Toolboxes.
+  a) "crustal.dat" - Input 1D velocity model of Earth's crust
+  
+  b) "a1_Pert_Model.m" - Script that perturb velocity model and
+  perform Monte-Carlo (MCMC) simulations to get uncertainties of P and
+  S-wave arrival times
+  
+  c) "a2_LatLon2xyz.m" - Script that converts coordinates of stations
+  from WGS84 Lat/Lon into local coordinates Easting/Northing
+  
+  d) "a3_hypo_homo.m" - Script that compute earthquake hypocenter
+  location by grid search method in the homogeneous medium
+  
+  e) "a4_hypo_layer.m" - Script that compute earthquake hypocenter
+  location by grid search method in the 1D layered medium
 
-4 COPYRIGHT
+4 REQUIREMENTS
+===================
+  
+  MATLAB version R2016b
+  Codes do not require any additional Matlab Toolboxes
+
+5 COPYRIGHT
 ===================
 
 Copyright (C) 2017,2018  Miroslav Hallo
