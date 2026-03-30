@@ -45,9 +45,7 @@ Simulation, Uncertainty Quantification, Cross-Platform (Windows, Linux)
 4 REQUIREMENTS
 ===================
   
-  MATLAB version R2016b
-  
-  MATLAB: Codes do not require any additional Matlab Toolboxes
+  MATLAB: Version R2016b, Codes do not require any additional Matlab Toolboxes
 
 5 COPYRIGHT
 ===================
