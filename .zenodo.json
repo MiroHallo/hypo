@@ -1,18 +1,28 @@
 {
+  "metadata": {
   "title": "Earthquake hypocenter location in Bayesian framework",
   "description": "Bayesian framework to locate earthquake hypocenter from P- and S-wave arrival time data in a layered 1D medium.",
   "creators": [
     {
       "name": "Hallo, Miroslav",
       "affiliation": "Charles University", 
-	  "orcid": "0000-0001-5865-7767"
+      "orcid": "0000-0001-5865-7767"
     }
   ],
   "access_right": "open",
   "license": "GPL-3.0-or-later",
   "keywords": ["Bayesian Inference", "Uncertainty Quantification", "Seismology", "Earthquake", "Hypocenter Location", "Body Waves"],
-  "resource_type": {
-    "type": "software",
-    "title": "Software"
+  "related_identifiers": [
+    {
+      "scheme": "doi",
+      "identifier": "10.1186/s40623-019-1016-8",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-article"
+    }
+  ],
+  "version": "v1.0",
+  "publication_date": "2018-12-04",
+  "language": "eng",
+  "upload_type": "software"
   }
 }
