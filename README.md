@@ -18,8 +18,9 @@ applications.
 1 METHODOLOGY
 ===================
 
-  Tarantola, A. (2005). Inverse Problem Theory and Methods for Model Parameter 
-Estimation, Society for Industrial and Applied Mathematics (SIAM).
+  Tarantola, A. (2005, Chapter 7.1). Inverse Problem Theory and Methods 
+for Model Parameter Estimation, Society for Industrial and Applied 
+Mathematics, Philadelphia, USA.
 
   Hallo, M., Opršal, I., Asano, K., Gallovič, F. (2019). Seismotectonics
 of the 2018 Northern Osaka M6.1 earthquake and its aftershocks: joint
@@ -53,7 +54,7 @@ The official software version is archived on Zenodo:
 5 COPYRIGHT
 ===================
 
-Copyright (C) 2017,2018  Miroslav Hallo
+Copyright (C) 2017-2019  Miroslav Hallo
 
 This program is published under the GNU General Public License (GNU GPL).
 
