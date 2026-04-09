@@ -1,0 +1,4 @@
+# P-wave uncertainty (polynomial of 3rd degree):
+-1.618345e-06  1.275992e-04  3.414981e-04  3.185275e-02
+# S-wave uncertainty (polynomial of 3rd degree):
+-3.845032e-06  3.001214e-04  7.989276e-04  7.476477e-02
