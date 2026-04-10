@@ -133,8 +133,8 @@ end
 % Plot ensemble of perturbed models
 fig = figure('Color','w');
 cc = colormap(['copper(',num2str(Pmod),')']);
-randcolol = max(1,(1:Pmod)' - randi(floor(Pmod/3),Pmod,1));
-cc = cc(randcolol,:);
+randcolor = max(1,(1:Pmod)' - randi(floor(Pmod/3),Pmod,1));
+cc = cc(randcolor,:);
 
 % P-wave models
 subplot(1,2,1)
@@ -245,10 +245,12 @@ fig = figure('Color','w');
 for st = 1:nDist
     % P-waves
     subaxis(nDist,2,(st-1)*2+1,'Spacing',0.005,'Padding',0.0);
-    histogram(TTp(:,st),'FaceColor',[0.2 0.2 0.2],'EdgeColor',[0.2 0.2 0.2],'FaceAlpha',1)
+    h1 = histogram(TTp(:,st),'FaceColor',[0.2 0.2 0.2],'EdgeColor',[0.2 0.2 0.2],'FaceAlpha',1);
+    maxhistP = max(h1.Values);
     if st<nDist
         set(gca,'xTickLabel',{})
     end
+    set(gca,'yTick',[])
     set(gca,'yTickLabel',{})
     ylabel([num2str(DistX(st)/1000),' km'])
     set(get(gca,'ylabel'),'rotation',0,'VerticalAlignment','middle', 'HorizontalAlignment','right')
@@ -256,17 +258,21 @@ for st = 1:nDist
         xlabel('P-wave arrival (s)')
     end
     xlim(histXlim)
+    ylim([0 1.05*maxhistP])
     % S-waves
     subaxis(nDist,2,(st-1)*2+2,'Spacing',0.005,'Padding',0.0);
-    histogram(TTs(:,st),'FaceColor',[0.2 0.2 0.2],'EdgeColor',[0.2 0.2 0.2],'FaceAlpha',1)
+    h2 = histogram(TTs(:,st),'FaceColor',[0.2 0.2 0.2],'EdgeColor',[0.2 0.2 0.2],'FaceAlpha',1);
+    maxhistS = max(h2.Values);
     if st<nDist
         set(gca,'xTickLabel',{})
     end
+    set(gca,'yTick',[])
     set(gca,'yTickLabel',{})
     if st==nDist
         xlabel('S-wave arrival (s)')
     end
     xlim(histXlim)
+    ylim([0 1.05*maxhistS])
 end
 
 % Save figure
@@ -276,7 +282,7 @@ fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
 
 %% -------------------------------------------------------------------
-% Compute standart deviations sigma 1 of arrival times
+% Compute standard deviations sigma 1 of arrival times
 sigma1p = zeros(1,nDist);
 sigma1s = zeros(1,nDist);
 for mod = 1:PrMod
@@ -322,16 +328,16 @@ fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
 % Display results
 disp('--------------------------------')
-disp('Resultant uncertainty dependence (polynomial of 3rd degree):')
+disp('Resultant uncertainty dependence (polynomial of 3rd degree, coefficients p1, p2, p3, p4):')
 disp(['sigma_P[s] = D[km]^3 *',num2str(bp(1)),' + D[km]^2 *',num2str(bp(2)),' + D[km] *',num2str(bp(3)),' + ',num2str(bp(4))])
 disp(['sigma_S[s] = D[km]^3 *',num2str(bs(1)),' + D[km]^2 *',num2str(bs(2)),' + D[km] *',num2str(bs(3)),' + ',num2str(bs(4))])
 disp('--------------------------------')
 
 % Open text file for results
 fid = fopen(fullfile(resDir, [outfile_tmp,'.txt']),'w');
-fprintf(fid,'%s\r\n','# P-wave uncertainty (polynomial of 3rd degree):');
+fprintf(fid,'%s\r\n','# P-wave uncertainty (polynomial coefficients p1, p2, p3, p4):');
 fprintf(fid,'%9.6e  %9.6e  %9.6e  %9.6e\r\n',bp);
-fprintf(fid,'%s\r\n','# S-wave uncertainty (polynomial of 3rd degree):');
+fprintf(fid,'%s\r\n','# S-wave uncertainty (polynomial coefficients p1, p2, p3, p4):');
 fprintf(fid,'%9.6e  %9.6e  %9.6e  %9.6e\r\n',bs);
 fclose(fid);
 disp(['Results successfully saved in: ', outfile_tmp,'.txt']);

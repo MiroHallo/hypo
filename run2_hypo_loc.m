@@ -4,7 +4,7 @@
 % Performs an exhaustive search in 3D space for the earthquake hypocenter, 
 % supporting both homogeneous and layered 1D velocity models. The location 
 % uncertainty is evaluated within a rigorous Bayesian framework, utilizing 
-% arrival time uncertainties previously computed by run1_pert_model script.
+% arrival time uncertainties previously computed by the run1_pert_model.m
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -61,18 +61,18 @@ Ref_LatLonEle = [34.844 135.622 0.140];
 loc_file = 'example_loc.txt';
 
 % Input text file with wave arrival uncertainty (polynomial of 3rd degree)
-% Sigma[s] = A * Dist[km]^3 * + B * Dist[km]^2 + C* Dist[km] + D
+% Sigma[s] = p1 * Dist[km]^3 * + p2 * Dist[km]^2 + p3 * Dist[km] + p4
 % First line for the P-wave arrival, the second line for the S-wave arrival
 % Note: This text file is an output from the run1_pert_model.m script
-% Note: The parser ignore commented lines
+% Note: The parser ignores commented lines
 unc_file = 'example_pert_model_uncertainty.txt';
 
 % Set the grid search in kilometers (Z direction is depth = positive down)
-gridX = -2.0 : 0.1 : 1.0;
-gridY = -2.5 : 0.1 : 0.5;
-gridZ = 8.5 : 0.1 : 11.5;
+gridX = -3.0 : 0.1 : 3.0; % Easting [km]
+gridY = -2.0 : 0.1 : 2.0; % Northing [km]
+gridZ = 8.0 : 0.1 : 12.0; % Depth [km]
 
-% Layered velocity model in the DWN format
+% Layered velocity model (fixed format)
 % 3rd line: number of layers; from 6th line: data
 % Depth of layer top[km]  Vp[km/s]  Vs[km/s]  Rho[g/cm^3]  Qp[-]  Qs[-]
 crustName = 'example_crustal.dat';
@@ -81,7 +81,7 @@ crustName = 'example_crustal.dat';
 layered = 1;
 
 % In the case of homogeneous model, set seismic wave velocities [km/s]
-vp = 6.4; % P-wave velocity (homogeneous model)
+vp = 6.4;     % P-wave velocity (homogeneous model)
 vs = vp/1.73; % S-wave velocity (homogeneous model)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -143,8 +143,8 @@ if layered == 1
     [veloc_mod] = rCrustal(crustName);
     VelMod.nlay = length(veloc_mod(:,1));
     VelMod.depth(1:VelMod.nlay) = [veloc_mod(2:VelMod.nlay,1);veloc_mod(VelMod.nlay,1)+10];
-    VelMod.Vp = veloc_mod(1:VelMod.nlay,2); % P-waves velocities [km/s]
-    VelMod.Vs = veloc_mod(1:VelMod.nlay,3); % S-waves velocities [km/s]
+    VelMod.Vp = veloc_mod(1:VelMod.nlay,2); % P-wave velocities [km/s]
+    VelMod.Vs = veloc_mod(1:VelMod.nlay,3); % S-wave velocities [km/s]
 end
 
 
@@ -154,9 +154,12 @@ end
 % Number of stations
 N = length(xyz(:,1));
 
-PDF = zeros(length(gridX), length(gridY), length(gridZ));
 tp_synth = zeros(1,N);
 ts_synth = zeros(1,N);
+
+% Initialize log(PDF)
+log_PDF = zeros(length(gridX), length(gridY), length(gridZ));
+log_PDF = log_PDF - 1e19;
 
 % Used arrivals (arrival time >= 0)
 st_p_used = tp >= 0;
@@ -166,8 +169,6 @@ for x = 1 : length(gridX)
     disp(['Done: ',num2str(100* (x/length(gridX)),'%4.1f' ),'%'])
     for y = 1 : length(gridY)
         for z = 1 : length(gridZ)
-            
-            diff = zeros(1,N);
             
             % Compute synthetic times
             if layered == 1 % 1D layered model
@@ -191,31 +192,42 @@ for x = 1 : length(gridX)
             orig_t = mean([tp(st_p_used) - tp_synth(st_p_used), ...
                            ts(st_s_used) - ts_synth(st_s_used)]);
             
-            sp = zeros(1,N);
-            ss = zeros(1,N);
+            log_L = 0;
+            res_p = zeros(1,N);
+            res_s = zeros(1,N);
+            sigma_p = zeros(1,N);
+            sigma_s = zeros(1,N);
+           
             for st = 1 : N
                 % Find sigma
                 DistX = sqrt( (gridX(x)-xyz(st,1))^2 + (gridY(y)-xyz(st,2))^2 );
-                sp(st) = polyval(pCoeff(1,:), DistX);
-                ss(st) = polyval(sCoeff(1,:), DistX);
+                sigma_p(st) = max(polyval(pCoeff(1,:), DistX), 0.001);
+                sigma_s(st) = max(polyval(sCoeff(1,:), DistX), 0.001);
                 
                 % P-waves
                 if tp(st) >= 0
-                    diff(st) = ((tp(st) - tp_synth(st) - orig_t)^2)/(sp(st)^2);
+                    res_p(st) = ((tp(st)-tp_synth(st)-orig_t)^2) / (sigma_p(st)^2);
+                    log_L = log_L - (0.5*res_p(st)) - log(sigma_p(st));
                 end
                 
                 % S-waves
                 if ts(st) >= 0
-                    diff(st) = diff(st) + ((ts(st)-ts_synth(st)-orig_t)^2)/(ss(st)^2);
+                    res_s(st) = ((ts(st)-ts_synth(st)-orig_t)^2) / (sigma_s(st)^2);
+                    log_L = log_L - (0.5*res_s(st)) - log(sigma_s(st));
                 end
             end
-            
-            PDF(x,y,z) = exp((-1/2) * sum(diff) );
-            
+
+            % log(PDF)
+            log_PDF(x,y,z) = log_L; 
         end
     end
 end
-% normalization to 1
+
+% From log(PDF) to PDF
+max_log = max(log_PDF(:));
+PDF = exp(log_PDF - max_log);
+
+% Normalization of PDF to 1
 PDF = PDF/sum(PDF(:));
 
 
@@ -234,32 +246,24 @@ for x = 1 : length(gridX)
     end
 end
 
-% The most likelyhood solution as max PDF
+% The Maximum Likelihood (ML). It is the same as the maximum a posteriori (MAP)
 loc_res(1) = gridX(loc_index(1));
 loc_res(2) = gridY(loc_index(2));
 loc_res(3) = gridZ(loc_index(3));
 
-% Convert solution back into Lat Lon
+% Convert ML/MAP solution coordinates back into Latitude Longitude
 [Loc] = locWGS84(loc_res(1), loc_res(2), Ref_LatLonEle(1), Ref_LatLonEle(2));
 loc_res_WGS(1:2) = Loc;
 loc_res_WGS(3) = loc_res(3);
 
-disp('----------------------------------')
-disp('The maximum likelihood solution:')
-disp('(Easting, Northing, Depth (km))')
-disp(num2str(loc_res,'%5.1f'))
-disp('(Lat, Lon, Depth (km))')
-disp(num2str(loc_res_WGS,'%10.4f'))
-disp('----------------------------------')
-
 
 %% -------------------------------------------------------------------
-% Evaluate misfit
+% Evaluate misfit for ML/MAP solution
 st_dist = zeros(1,N);
 tp_synth = zeros(1,N);
 ts_synth = zeros(1,N);
-tp_missfit = zeros(1,N);
-ts_missfit = zeros(1,N);
+tp_misfit = zeros(1,N);
+ts_misfit = zeros(1,N);
 
 % Compute synthetic times
 if layered == 1 % 1D layered model
@@ -272,10 +276,10 @@ if layered == 1 % 1D layered model
     end
 else % homogeneous model
     for st = 1 : N
-        st_dist = sqrt( (loc_res(1)-xyz(st,1))^2 + ...
+        st_dist(st) = sqrt( (loc_res(1)-xyz(st,1))^2 + ...
                         (loc_res(2)-xyz(st,2))^2 + (loc_res(3)+xyz(st,3))^2 );
-        tp_synth(st) = (1/vp)*st_dist;
-        ts_synth(st) = (1/vs)*st_dist;
+        tp_synth(st) = (1/vp)*st_dist(st);
+        ts_synth(st) = (1/vs)*st_dist(st);
     end
 end
 
@@ -285,18 +289,18 @@ orig_t = mean([tp(st_p_used) - tp_synth(st_p_used), ts(st_s_used) - ts_synth(st_
 for st = 1 : N
     % P-waves
     if tp(st) >= 0
-        tp_missfit(st) = (tp(st) - tp_synth(st) - orig_t);
+        tp_misfit(st) = (tp(st) - tp_synth(st) - orig_t);
     end
     
     % S-waves
     if ts(st) >= 0
-        ts_missfit(st) = (ts(st) - ts_synth(st) - orig_t);
+        ts_misfit(st) = (ts(st) - ts_synth(st) - orig_t);
     end
 end
 
 
 %% -------------------------------------------------------------------
-% Solution uncertainty
+% ML/MAP solution uncertainty
 
 % Marginal PDFs
 marginal_z_PDF = sum(PDF,3);
@@ -324,112 +328,276 @@ coeffs = polyfit(gridZ, lny, 2);
 sigma = sqrt(-1/coeffs(1));
 loc_xyz_sigma(3) = sigma;
 
-disp('Loc XYZ 2sigma uncertainty (km)')
-disp(num2str(loc_xyz_sigma*2,'%6.2f'))
-disp('----------------------------------')
 
-% -------------------------------------------------------------------
-% Save results into text file
+%% -------------------------------------------------------------------
+% Compute Posterior Mean
+[my, mx, mz] = meshgrid(gridY, gridX, gridZ);
+totalP = sum(PDF(:));
+x_mean = sum(mx(:) .* PDF(:)) / totalP;
+y_mean = sum(my(:) .* PDF(:)) / totalP;
+z_mean = sum(mz(:) .* PDF(:)) / totalP;
+
+% Posterior Mean solution (PM)
+loc_pm = [x_mean, y_mean, z_mean];
+
+% Convert PM solution coordinates back into Latitude Longitude
+[Loc] = locWGS84(loc_pm(1), loc_pm(2), Ref_LatLonEle(1), Ref_LatLonEle(2));
+loc_pm_WGS(1:2) = Loc;
+loc_pm_WGS(3) = loc_pm(3);
+
+
+%% -------------------------------------------------------------------
+% Display and save ML / MAP / PM solutions
+
+disp('----------------------------------------------------------------------')
+fprintf('%s\n','# SOLUTION FOR THE EARTHQUAKE HYPOCENTER LOCATION');
+disp('----------------------------------------------------------------------')
+fprintf('%s\n','# Maximum Likelihood solution (ML) is the same as Maximum a Posteriori solution (MAP)');
+fprintf('%s\n','# Latitude, Longitude, Depth[km], Easting, Northing, E_sigma, N_sigma, Z_sigma, E_2sigma, N_2sigma, Z_2sigma [km]');
+fprintf('%10.5f %10.5f  %9.3f %8.3f  %8.3f %8.3f %8.3f %8.3f  %8.3f  %8.3f  %8.3f\n', loc_res_WGS, loc_res(1:2), loc_xyz_sigma, loc_xyz_sigma.*2);
+disp('----------------------------------------------------------------------')
+fprintf('%s\n','# Posterior Mean solution (PM)');
+fprintf('%s\n','# Latitude, Longitude, Depth[km], Easting, Northing');
+fprintf('%10.5f %10.5f  %9.3f %8.3f  %8.3f\n', loc_pm_WGS, loc_pm(1:2));
+disp('----------------------------------------------------------------------')
+
+% Save into text file
 fid = fopen(fullfile(resDir, [outfile,'.txt']),'w');
-fprintf(fid,'%s\r\n','# The maximum likelihood solution for the hypocentre location');
-fprintf(fid,'%s\r\n','# Latitude, Longitude, Depth[km], E[km], N[km], E_sigma[km], N_sigma[km], Z_sigma[km], E_2sigma[km], N_2sigma[km], Z_2sigma[km]');
-fprintf(fid,'%10.5f %10.5f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\r\n', loc_res_WGS, loc_res(1:2), loc_xyz_sigma, loc_xyz_sigma.*2);
+fprintf(fid,'%s\r\n','# SOLUTION FOR THE EARTHQUAKE HYPOCENTER LOCATION');
+fprintf(fid,'%s\r\n','# --------------------------------------------------------------------');
+fprintf(fid,'%s\r\n','# Maximum Likelihood solution (ML) is the same as Maximum a Posteriori solution (MAP)');
+fprintf(fid,'%s\r\n','# Latitude, Longitude, Depth[km], Easting, Northing, E_sigma, N_sigma, Z_sigma, E_2sigma, N_2sigma, Z_2sigma [km]');
+fprintf(fid,'%10.5f %10.5f  %9.3f %8.3f  %8.3f %8.3f %8.3f %8.3f  %8.3f  %8.3f  %8.3f\r\n', loc_res_WGS, loc_res(1:2), loc_xyz_sigma, loc_xyz_sigma.*2);
+fprintf(fid,'%s\r\n','# --------------------------------------------------------------------');
+fprintf(fid,'%s\r\n','# Posterior Mean solution (PM)');
+fprintf(fid,'%s\r\n','# Latitude, Longitude, Depth[km], Easting, Northing [km]');
+fprintf(fid,'%10.5f %10.5f  %9.3f %8.3f  %8.3f\r\n', loc_pm_WGS, loc_pm(1:2));
 fclose(fid);
 disp(['Results successfully saved in: ', outfile,'.txt']);
 
 
 %% -------------------------------------------------------------------
-% plot cross-section
-close all
 % Plot map of stations
+
 fih(1) = figure('color','w');
 hold on
 for i = 1 : N
     if (st_p_used(i)==0) && (st_s_used(i)==0)
-        plot(xyz(i,1),xyz(i,2),'^','color',[0.8 0.8 0.8],'MarkerSize',8,'LineWidth',1);
+        hli(5) = plot(xyz(i,1),xyz(i,2),'^','color',[0.8 0.8 0.8],'MarkerSize',8,'LineWidth',1);
     else
-        hli(1) = plot(xyz(i,1),xyz(i,2),'^k','MarkerSize',8,'LineWidth',1);
+        hli(4) = plot(xyz(i,1),xyz(i,2),'^k','MarkerSize',8,'LineWidth',1);
     end
 end
-hli(2) = plot(loc_res(1),loc_res(2),'*','Color',[0.8 0.2 0.2],'MarkerSize',8,'LineWidth',1);
-text(gridX(end),loc_res(2), {[' ', num2str(loc_res_WGS(1),'%10.4f')], ...
-                             [' ', num2str(loc_res_WGS(2),'%10.4f')], ...
-                             [' ', num2str(loc_res_WGS(3),'%6.1f'),' km']},'Color',[0.8 0.2 0.2])
+hli(1) = plot(loc_res(1),loc_res(2),'x','Color',[0.8 0.2 0.2],'MarkerSize',8,'LineWidth',1.1);
+hli(2) = plot(loc_pm(1),loc_pm(2),'o','Color',[0.2 0.2 0.8],'MarkerSize',8,'LineWidth',1.1);
+axis equal
+limx = get(gca,'XLim');
+limx(1) = limx(1) - 0.02*(limx(2)-limx(1));
+limx(2) = limx(2) + 0.02*(limx(2)-limx(1));
+limy = get(gca,'YLim');
+limy(1) = limy(1) - 0.02*(limy(2)-limy(1));
+limy(2) = limy(2) + 0.02*(limy(2)-limy(1));
+text(limx(1),limy(1), {' ML solution', ...
+                       [' Lat ', num2str(loc_res_WGS(1),'%10.4f')], ...
+                       [' Lon ', num2str(loc_res_WGS(2),'%10.4f')], ...
+                       [' Dep ', num2str(loc_res_WGS(3),'%6.1f'),' km']},...
+                       'Color',[0.8 0.2 0.2], 'VerticalAlignment','bottom')
+text(limx(1),limy(2), {' PM solution', ...
+                       [' Lat ', num2str(loc_pm_WGS(1),'%10.4f')], ...
+                       [' Lon ', num2str(loc_pm_WGS(2),'%10.4f')], ...
+                       [' Dep ', num2str(loc_pm_WGS(3),'%6.1f'),' km']},...
+                       'Color',[0.2 0.2 0.8], 'VerticalAlignment','top')
 hli(3) = plot([gridX(1), gridX(end), gridX(end), gridX(1), gridX(1)],...
-    [gridY(1), gridY(1), gridY(end), gridY(end), gridY(1)],'Color',[0.2 0.8 0.2],'LineWidth',1);
+    [gridY(1), gridY(1), gridY(end), gridY(end), gridY(1)],'Color',[0.2 0.8 0.2],'LineWidth',1.1);
 hold off
-title('Station and the maximum likelihood solution', 'FontWeight', 'normal')
-legend(hli,'Stations','Epicentre','Search area','Location','northeast')
+set(gca,'Xlim',limx)
+set(gca,'Ylim',limy)
+title('Station and location solution', 'FontWeight', 'normal')
+if length(hli)>4
+    legend(hli,'ML solution','PM solution','Search area','Used stations','Unused stations','Location','northeast')
+else
+    legend(hli,'ML solution','PM solution','Search area','Used stations','Location','northeast')
+end
 xlabel('Easting (km)')
 ylabel('Northing (km)')
 box on;
-axis equal
+
+
+%% -------------------------------------------------------------------
+% Plot horizontal slice
+
+fih(2) = figure('color','w');
+
+xy2D = squeeze(PDF(:,:,loc_index(3)));
+xz2D = squeeze(PDF(:,loc_index(2),:));
+yz2D = squeeze(PDF(loc_index(1),:,:));
+max_p = max([xy2D(:); xz2D(:); yz2D(:)]);
 
 % plot horizontal slice
-fih(2) = figure('color','w');
-imagesc(gridX,gridY,squeeze(PDF(:,:,loc_index(3)))');
+subplot(2,2,1)
+imagesc(gridX,gridY,xy2D');
 set(gca,'YDir','normal')
 axis image;
 colormap(dusk)
-colorbar
-title(['PDF cross-section at depth ',num2str(gridZ(loc_index(3)),'%6.1f'),' km'],...
-       'FontWeight', 'normal')
+clim([0, max_p])
 xlabel('Easting (km)')
 ylabel('Northing (km)')
 box on;
 
-% plot vertical slice W-E
-fih(3) = figure('color','w');
-imagesc(gridX,gridZ,squeeze(PDF(:,loc_index(2),:))');
-set(gca,'YDir','normal')
+% plot vertical slice E-W
+subplot(2,2,3)
+imagesc(gridX,gridZ,xz2D');
+set(gca,'YDir','reverse')
 axis image;
 colormap(dusk)
-colorbar
-set(gca,'YDir','reverse')
-title('PDF cross-section (W-E)', 'FontWeight', 'normal')
+clim([0, max_p])
 xlabel('Easting (km)')
 ylabel('Depth (km)')
 box on;
 
-% plot vertical slice S-N
-fih(4) = figure('color','w');
-imagesc(gridY,gridZ,squeeze(PDF(loc_index(1),:,:))');
+% plot vertical slice N-S
+subplot(2,2,2)
+imagesc(gridZ,gridY,yz2D);
 set(gca,'YDir','normal')
 axis image;
 colormap(dusk)
-colorbar
+clim([0, max_p])
+xlabel('Depth (km)')
+ylabel('Northing (km)')
+box on;
+
+% plot axis with legend
+subplot(2,2,4)
+hold on
+text(0,5,'PDF cross-sections at ML/MAP')
+text(0,4,['Depth slice at ',num2str(gridZ(loc_index(3)),'%6.1f'),' km'])
+text(0,3,['N-S slice at easting ',num2str(gridX(loc_index(1)),'%6.1f'),' km'])
+text(0,2,['E-W slice at northing ',num2str(gridY(loc_index(2)),'%6.1f'),' km'])
+hold off
+set(gca,'Xlim',[0 1])
+set(gca,'Ylim',[-1 6])
+axis off
+clim([0, max_p])
+cbh = colorbar('Location', 'southoutside');
+cbh.Label.String = 'Probability';
+cbh.Label.FontSize = 10;
+
+ax = gca;
+axPos = ax.Position;
+cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.8, 0.03]; 
+
+
+%% -------------------------------------------------------------------
+% Plot marginal PDF
+
+fih(3) = figure('color','w');
+
+xy2D = squeeze(sum(PDF,3));
+xz2D = squeeze(sum(PDF,2));
+yz2D = squeeze(sum(PDF,1));
+max_p = max([xy2D(:); xz2D(:); yz2D(:)]);
+
+% plot horizontal slice
+subplot(2,2,1)
+imagesc(gridX,gridY,xy2D');
+set(gca,'YDir','normal')
+axis image;
+hold on
+plot(loc_res(1),loc_res(2),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
+plot(loc_pm(1),loc_pm(2),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
+hold off
+colormap(dusk)
+clim([0, max_p])
+xlabel('Easting (km)')
+ylabel('Northing (km)')
+box on;
+
+% plot vertical slice E-W
+subplot(2,2,3)
+imagesc(gridX,gridZ,xz2D');
 set(gca,'YDir','reverse')
-title('PDF cross-section (S-N)', 'FontWeight', 'normal')
-xlabel('Northing (km)')
+axis image;
+hold on
+plot(loc_res(1),loc_res(3),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
+plot(loc_pm(1),loc_pm(3),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
+hold off
+colormap(dusk)
+clim([0, max_p])
+xlabel('Easting (km)')
 ylabel('Depth (km)')
 box on;
 
-% Plot misfits
-fih(5) = figure('color','w');
+% plot vertical slice N-S
+subplot(2,2,2)
+imagesc(gridZ,gridY,yz2D);
+set(gca,'YDir','normal')
+axis image;
 hold on
-for st = 1 : N
+plot(loc_res(3),loc_res(2),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
+plot(loc_pm(3),loc_pm(2),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
+hold off
+colormap(dusk)
+clim([0, max_p])
+xlabel('Depth (km)')
+ylabel('Northing (km)')
+box on;
+
+% plot axis with legend
+subplot(2,2,4)
+hold on
+text(0,5,'Posterior marginal PDF')
+plot(0,4,'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
+text(0.05,4,'ML/MAP solution')
+plot(0,3,'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
+text(0.05,3,'PM solution')
+hold off
+set(gca,'Xlim',[0 1])
+set(gca,'Ylim',[-1 6])
+axis off
+clim([0, max_p])
+cbh = colorbar('Location', 'southoutside');
+cbh.Label.String = 'Marginal Probability';
+cbh.Label.FontSize = 10;
+
+ax = gca;
+axPos = ax.Position;
+cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.8, 0.03]; 
+
+
+%% -------------------------------------------------------------------
+% Plot misfits
+
+fih(4) = figure('color','w');
+
+[t_val, t_i] = sort(tp_synth);
+maxX = ceil(max([tp_synth, ts_synth])) + 1;
+
+hold on
+for yi = 1 : N
+    st = t_i(yi);
     % P-waves
     if tp(st) >= 0
-        plot([tp(st) tp(st)],[st-1 st],'Color',[0.8 0.2 0.2])
-        text(tp(st)+0.05,st-0.5,num2str(tp_missfit(st),'%5.2f'),'Color',[0.8 0.2 0.2])
+        plot([tp(st) tp(st)],[yi-1 yi],'Color',[0.8 0.2 0.2])
+        text(tp(st)+0.05,yi-0.5,num2str(tp_misfit(st),'%5.2f'),'Color',[0.8 0.2 0.2])
     end
-    plot([tp_synth(st)+orig_t tp_synth(st)+orig_t],[st-1 st],':','Color',[0.8 0.2 0.2])
+    plot([tp_synth(st)+orig_t tp_synth(st)+orig_t],[yi-1 yi],':','Color',[0.8 0.2 0.2])
     % S-waves
     if ts(st) >= 0
-        plot([ts(st) ts(st)],[st-1 st],'Color',[0.2 0.8 0.2])
-        text(ts(st)+0.05,st-0.5,num2str(ts_missfit(st),'%5.2f'),'Color',[0.2 0.8 0.2])
+        plot([ts(st) ts(st)],[yi-1 yi],'Color',[0.2 0.8 0.2])
+        text(ts(st)+0.05,yi-0.5,num2str(ts_misfit(st),'%5.2f'),'Color',[0.2 0.8 0.2])
     end
-    plot([ts_synth(st)+orig_t ts_synth(st)+orig_t],[st-1 st],':','Color',[0.2 0.8 0.2])
+    plot([ts_synth(st)+orig_t ts_synth(st)+orig_t],[yi-1 yi],':','Color',[0.2 0.8 0.2])
     % Station common
-    plot([0 10],[st st],'color',[0.8 0.8 0.8])
-    text(0,st-0.5,[' ST-',num2str(st)])
+    plot([0 maxX],[yi yi],'color',[0.8 0.8 0.8])
+    text(0,yi-0.5,[' ST-',num2str(st)])
 end
 hold off
 set(gca,'YDir','reverse')
 set(gca, 'Layer', 'top')
+set(gca,'XLim', [0 maxX])
 set(gca,'Ylim',[0 N])
 set(gca,'YTickLabel',{})
-title('Data misfits (observed - synthetic)', 'FontWeight', 'normal')
+title('Observed data (|) vs. Synthetic data (:)', 'FontWeight', 'normal')
 xlabel('Time (s)')
 box on;
 
@@ -440,19 +608,15 @@ outfile_tmp = [outfile,'_map'];
 exportgraphics(fih(1), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
 fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
-outfile_tmp = [outfile,'_pdf_hor'];
+outfile_tmp = [outfile,'_pdf_cross_section'];
 exportgraphics(fih(2), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
 fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
-outfile_tmp = [outfile,'_pdf_we'];
+outfile_tmp = [outfile,'_pdf_marginal'];
 exportgraphics(fih(3), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
 fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
-outfile_tmp = [outfile,'_pdf_sn'];
-exportgraphics(fih(4), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
-fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
-
 outfile_tmp = [outfile,'_misfit'];
-exportgraphics(fih(5), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
+exportgraphics(fih(4), fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
 fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
