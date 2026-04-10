@@ -57,18 +57,38 @@ The official software version is archived on Zenodo:
   1. Prepare your 1D velocity model in `example_crustal.dat`
   2. Prepare your P and S-wave arrival time data in `example_loc.txt`
   3. Open MATLAB
-  4. Run the script `run1_pert_model.m` to generate the wave arrival uncertainty for your velocity model
+  4. Run the script `run1_pert_model.m` to generate the seismic wave arrival time uncertainty for your velocity model
   5. Set up and run the script `run2_hypo_loc.m` to evaluate the location of the hypocenter
-  5. Check the `/results` folder for high-resolution figures and text files
+  6. Check `/results` folder for high-resolution figures and text file with results
 
 6 EXAMPLE OUTPUT
 ===================
 
+The figure below illustrates the output 3D posterior Probability Density Function (PDF) with orthogonal slices 
+(Depth, N-S, E-W) passing through the Maximum Likelihood (ML) hypocenter location. 
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/loc_dark.png">
   <source media="(prefers-color-scheme: light)" srcset="img/loc_light.png">
-  <img alt="Posterior probability density function" src="img/loc_light.png">
+  <img alt="Posterior Probability Density Function" src="img/loc_light.png">
 </picture>
+
+The toolbox saves results into a structured text file. It contains precise coordinates for the Maximum 
+Likelihood (ML) or Maximum A Posteriori (MAP) solutions (which are identical in this case), including standard 
+deviations (1σ) and double standard deviations (2σ) to quantify spatial uncertainty. Additionally, the output 
+includes the Posterior Mean (PM) solution, which is particularly useful for characterizing the location in cases 
+of highly asymmetric posterior PDFs.
+```text
+# SOLUTION FOR THE EARTHQUAKE HYPOCENTER LOCATION
+# --------------------------------------------------------------------
+# Maximum Likelihood solution (ML) is the same as Maximum a Posteriori solution (MAP)
+# Latitude, Longitude, Depth[km], Easting, Northing, E_sigma, N_sigma, Z_sigma, E_2sigma, N_2sigma, Z_2sigma [km]
+  34.83412  135.61489     10.050   -0.650    -1.100    0.251    0.278    0.485     0.502     0.557     0.970
+# --------------------------------------------------------------------
+# Posterior Mean solution (PM)
+# Latitude, Longitude, Depth[km], Easting, Northing [km]
+  34.83398  135.61483     10.076   -0.655    -1.116
+```
 
 7 COPYRIGHT
 ===================

@@ -58,7 +58,7 @@ histXlim = [1 20]; % Limiths in seconds for hodochrones-histogram plot
 
 DepthS = 10000; % Depth of source [m]
 DepthR = 0; % Depth of receivers [m]
-DistX = 0:2000:30000; % Source-receiver distances to compute rays
+DistX = 0:2000:30000; % Source-receiver distances to compute rays [m]
 DX = 10; % Tolerance of ray for source-receiver distances [m]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -231,7 +231,7 @@ fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 TTp = zeros(Nmod,nDist);
 TTs = zeros(Nmod,nDist);
 for mod = 1:Nmod
-    DeptB = [vm_changeZ(mod,2:nLayers), vm_changeZ(mod,nLayers)+10000];
+    DeptB = [vm_changeZ(mod,2:nLayers), vm_changeZ(mod,nLayers)+1e4];
     [~,time] = TT(DeptB,vm_changeP(mod,1:end),DepthS,DepthR,DistX,DX);
     TTp(mod,1:nDist) = time';
     [~,time] = TT(DeptB,vm_changeS(mod,1:end),DepthS,DepthR,DistX,DX);
@@ -327,17 +327,26 @@ exportgraphics(fig, fullfile(resDir, [outfile_tmp,'.png']), 'Resolution', 300);
 fprintf('Figure successfully saved as: %s.png\n', outfile_tmp);
 
 % Display results
-disp('--------------------------------')
-disp('Resultant uncertainty dependence (polynomial of 3rd degree, coefficients p1, p2, p3, p4):')
-disp(['sigma_P[s] = D[km]^3 *',num2str(bp(1)),' + D[km]^2 *',num2str(bp(2)),' + D[km] *',num2str(bp(3)),' + ',num2str(bp(4))])
-disp(['sigma_S[s] = D[km]^3 *',num2str(bs(1)),' + D[km]^2 *',num2str(bs(2)),' + D[km] *',num2str(bs(3)),' + ',num2str(bs(4))])
-disp('--------------------------------')
+disp('----------------------------------------------------------------------')
+fprintf('%s\n','# DISTANCE-DEPENDENT UNCERTAINTY OF WAVE ARRIVAL TIMES');
+fprintf('%s\n','# Sigma[s] = p1 * Dist[km]^3 * + p2 * Dist[km]^2 + p3 * Dist[km] + p4');
+fprintf('%s\n','# --------------------------------------------------------------------');
+fprintf('%s\n','# P-wave uncertainty (p1, p2, p3, p4):');
+fprintf('%9.6e  %9.6e  %9.6e  %9.6e\n',bp);
+fprintf('%s\n','# --------------------------------------------------------------------');
+fprintf('%s\n','# S-wave uncertainty (p1, p2, p3, p4):');
+fprintf('%9.6e  %9.6e  %9.6e  %9.6e\n',bs);
+disp('----------------------------------------------------------------------')
 
 % Open text file for results
 fid = fopen(fullfile(resDir, [outfile_tmp,'.txt']),'w');
-fprintf(fid,'%s\r\n','# P-wave uncertainty (polynomial coefficients p1, p2, p3, p4):');
+fprintf(fid,'%s\r\n','# DISTANCE-DEPENDENT UNCERTAINTY OF WAVE ARRIVAL TIMES');
+fprintf(fid,'%s\r\n','# Sigma[s] = p1 * Dist[km]^3 * + p2 * Dist[km]^2 + p3 * Dist[km] + p4');
+fprintf(fid,'%s\r\n','# --------------------------------------------------------------------');
+fprintf(fid,'%s\r\n','# P-wave uncertainty (p1, p2, p3, p4):');
 fprintf(fid,'%9.6e  %9.6e  %9.6e  %9.6e\r\n',bp);
-fprintf(fid,'%s\r\n','# S-wave uncertainty (polynomial coefficients p1, p2, p3, p4):');
+fprintf(fid,'%s\r\n','# --------------------------------------------------------------------');
+fprintf(fid,'%s\r\n','# S-wave uncertainty (p1, p2, p3, p4):');
 fprintf(fid,'%9.6e  %9.6e  %9.6e  %9.6e\r\n',bs);
 fclose(fid);
 disp(['Results successfully saved in: ', outfile_tmp,'.txt']);

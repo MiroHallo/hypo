@@ -68,9 +68,9 @@ loc_file = 'example_loc.txt';
 unc_file = 'example_pert_model_uncertainty.txt';
 
 % Set the grid search in kilometers (Z direction is depth = positive down)
-gridX = -3.0 : 0.1 : 3.0; % Easting [km]
-gridY = -2.0 : 0.1 : 2.0; % Northing [km]
-gridZ = 8.0 : 0.1 : 12.0; % Depth [km]
+gridX = -3.0 : 0.1 : 2.0; % Easting [km]
+gridY = -2.0 : 0.1 : 1.0; % Northing [km]
+gridZ = 8.5 : 0.1 : 11.5; % Depth [km]
 
 % Layered velocity model (fixed format)
 % 3rd line: number of layers; from 6th line: data
@@ -121,7 +121,7 @@ tp = data{1,4}(:,1)';
 ts = data{1,5}(:,1)';
 
 % -------------------------------------------------------------------
-% Read file with wave arrival uncertainty (polynomial of 3rd degree)
+% Read file with wave arrival uncertainty
 try
     fid = fopen(unc_file,'r');
     uncdata = textscan(fid,'%f %f %f %f %[^\n]', 'CommentStyle', '#');
@@ -259,7 +259,6 @@ loc_res_WGS(3) = loc_res(3);
 
 %% -------------------------------------------------------------------
 % Evaluate misfit for ML/MAP solution
-st_dist = zeros(1,N);
 tp_synth = zeros(1,N);
 ts_synth = zeros(1,N);
 tp_misfit = zeros(1,N);
@@ -276,10 +275,10 @@ if layered == 1 % 1D layered model
     end
 else % homogeneous model
     for st = 1 : N
-        st_dist(st) = sqrt( (loc_res(1)-xyz(st,1))^2 + ...
+        st_dist = sqrt( (loc_res(1)-xyz(st,1))^2 + ...
                         (loc_res(2)-xyz(st,2))^2 + (loc_res(3)+xyz(st,3))^2 );
-        tp_synth(st) = (1/vp)*st_dist(st);
-        ts_synth(st) = (1/vs)*st_dist(st);
+        tp_synth(st) = (1/vp)*st_dist;
+        ts_synth(st) = (1/vs)*st_dist;
     end
 end
 
@@ -330,7 +329,7 @@ loc_xyz_sigma(3) = sigma;
 
 
 %% -------------------------------------------------------------------
-% Compute Posterior Mean
+% Compute Posterior Mean solution
 [my, mx, mz] = meshgrid(gridY, gridX, gridZ);
 totalP = sum(PDF(:));
 x_mean = sum(mx(:) .* PDF(:)) / totalP;
@@ -377,7 +376,7 @@ disp(['Results successfully saved in: ', outfile,'.txt']);
 
 
 %% -------------------------------------------------------------------
-% Plot map of stations
+% Plot map with stations
 
 fih(1) = figure('color','w');
 hold on
@@ -469,13 +468,14 @@ box on;
 % plot axis with legend
 subplot(2,2,4)
 hold on
-text(0,5,'PDF cross-sections at ML/MAP')
+text(0,6,'Posterior Probability Density Function')
+text(0,5,'Cross-sections at ML/MAP solution')
 text(0,4,['Depth slice at ',num2str(gridZ(loc_index(3)),'%6.1f'),' km'])
-text(0,3,['N-S slice at easting ',num2str(gridX(loc_index(1)),'%6.1f'),' km'])
-text(0,2,['E-W slice at northing ',num2str(gridY(loc_index(2)),'%6.1f'),' km'])
+text(0,3,['N-S slice at Easting ',num2str(gridX(loc_index(1)),'%6.1f'),' km'])
+text(0,2,['E-W slice at Northing ',num2str(gridY(loc_index(2)),'%6.1f'),' km'])
 hold off
 set(gca,'Xlim',[0 1])
-set(gca,'Ylim',[-1 6])
+set(gca,'Ylim',[-1 6.5])
 axis off
 clim([0, max_p])
 cbh = colorbar('Location', 'southoutside');
@@ -484,7 +484,7 @@ cbh.Label.FontSize = 10;
 
 ax = gca;
 axPos = ax.Position;
-cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.8, 0.03]; 
+cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.6, 0.03];
 
 
 %% -------------------------------------------------------------------
@@ -552,7 +552,7 @@ plot(0,3,'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
 text(0.05,3,'PM solution')
 hold off
 set(gca,'Xlim',[0 1])
-set(gca,'Ylim',[-1 6])
+set(gca,'Ylim',[-1 5.5])
 axis off
 clim([0, max_p])
 cbh = colorbar('Location', 'southoutside');
@@ -561,7 +561,7 @@ cbh.Label.FontSize = 10;
 
 ax = gca;
 axPos = ax.Position;
-cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.8, 0.03]; 
+cbh.Position = [axPos(1), axPos(2)-0.1, axPos(3)*0.6, 0.03];
 
 
 %% -------------------------------------------------------------------
@@ -597,7 +597,7 @@ set(gca, 'Layer', 'top')
 set(gca,'XLim', [0 maxX])
 set(gca,'Ylim',[0 N])
 set(gca,'YTickLabel',{})
-title('Observed data (|) vs. Synthetic data (:)', 'FontWeight', 'normal')
+title('Observed data ( | ) vs Synthetic data ( : )', 'FontWeight', 'normal')
 xlabel('Time (s)')
 box on;
 

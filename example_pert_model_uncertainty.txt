@@ -1,4 +1,8 @@
-# P-wave uncertainty (polynomial coefficients p1, p2, p3, p4):
+# DISTANCE-DEPENDENT UNCERTAINTY OF WAVE ARRIVAL TIMES
+# Sigma[s] = p1 * Dist[km]^3 * + p2 * Dist[km]^2 + p3 * Dist[km] + p4
+# --------------------------------------------------------------------
+# P-wave uncertainty (p1, p2, p3, p4):
 -1.561704e-06  1.235853e-04  3.641933e-04  3.172596e-02
-# S-wave uncertainty (polynomial coefficients p1, p2, p3, p4):
+# --------------------------------------------------------------------
+# S-wave uncertainty (p1, p2, p3, p4):
 -3.881745e-06  3.030289e-04  8.823814e-04  7.741735e-02
