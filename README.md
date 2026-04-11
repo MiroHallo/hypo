@@ -49,9 +49,9 @@ The official software version is archived on Zenodo:
 ===================
 
 *   **2.0 — Refactored Release** | April 2026
-    *   Workflow: Streamlined into two core scripts for automated processing (`run1_pert_model.m` and `run2_hypo_loc.m`)
+    *   Processing Pipeline: Streamlined workflow into two core scripts for automated data flow
     *   Numerical Engine: Enhanced PDF stability and added Posterior Mean (PM) estimator (alongside ML/MAP)
-    *   Modernization: Fully ported to MATLAB R2025b with industry-standard lib/ directory structure
+    *   Modernization: Fully ported to MATLAB R2025b with industry-standard directory structure
     *   UX/I-O: Robust ASCII parser, intuitive variable naming, and refined graphical reports
 
 *   **1.0 — Initial Release** | December 2018
