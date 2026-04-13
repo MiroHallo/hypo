@@ -29,7 +29,7 @@ Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://do
 2 TECHNICAL IMPLEMENTATION
 ===================
 
-* **High-Performance Computing:** Scalable Parallelized Grid Search Engine (MATLAB Parallel Computing Toolbox)
+* **High-Performance Computing:** Scalable Parallel Grid Search Engine (MATLAB Parallel Computing Toolbox)
 * **Algorithm:** 3D Bayesian Inference, Ray Tracing (1D), Monte Carlo simulations
 * **Analysis:** Rigorous Uncertainty Quantification (UQ), Full Posterior PDF Estimation
 * **Compatibility:** Cross-Platform (Windows, Linux, macOS), Universal Serial/Parallel execution (scalable)
@@ -50,13 +50,13 @@ The official software version is archived on Zenodo:
 4 RELEASE HISTORY (MAJOR VERSIONS)
 ===================
 
-*   **2.1 — Refactored and Parallelized Engine** | April 2026
+*   **2.1 — Parallelized & Refactored Engine** | April 2026
     *   Scalable Parallel Engine: Parallelized PDF calculations using `parfor` from the Parallel Computing Toolbox (the code automatically scales to available CPU cores/threads)
-    *   Adaptive Execution: Runs in high-performance `Parallel Mode` if available, or falls back to `Serial Mode` without errors
+    *   Adaptive Execution: Runs in high-performance **Parallel Mode** if available, or falls back to **Serial Mode**
     *   Processing Pipeline: Streamlined workflow into two core scripts for automated data flow
     *   Numerical Engine: Enhanced PDF stability and added Posterior Mean (PM) estimator (alongside ML/MAP)
     *   Modernization: Fully ported to MATLAB R2025b with industry-standard directory structure
-    *   UX/I-O: Robust ASCII parser, refined graphical reports, and real-time progress tracking even during heavy parallel workloads
+    *   UX/I-O: Robust ASCII parser, refined graphical reports, and real-time progress & ETA tracking even during heavy parallel workloads
 
 *   **1.0 — Initial Release** | December 2018
     *   Core implementation used by paper published in Earth, Planets and Space (Hallo et al., 2019)
@@ -68,7 +68,7 @@ The official software version is archived on Zenodo:
   
   Serial execution: Codes do not require any additional Matlab Toolboxes
   
-  Parallel execution (Optional): Parallel Computing Toolbox (The code automatically scales to available CPU cores/threads)
+  Parallel execution (Optional): Parallel Computing Toolbox (automatically scales to available CPU cores/threads)
 
 6 USAGE
 ===================
@@ -107,6 +107,11 @@ of highly asymmetric posterior PDFs.
 # Posterior Mean solution (PM)
 # Latitude, Longitude, Depth[km], Easting, Northing [km]
   34.83398  135.61483     10.076   -0.655    -1.116
+```
+The computation process is monitored and the toolbox inform the user in real-time about the progress and Estimated Time of Arrival (ETA) even during heavy parallel workloads. See example below:
+```text
+Parallel Mode (4 workers)
+Processing  13% (ETA: 00:15:08)
 ```
 
 8 COPYRIGHT
