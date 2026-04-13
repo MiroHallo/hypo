@@ -1,4 +1,4 @@
-# Parallelized Bayesian earthquake hypocenter location from wave arrival times
+# Parallel Bayesian earthquake hypocenter location from wave arrival times
 Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification
 ***************************************
 
@@ -29,7 +29,7 @@ Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://do
 2 TECHNICAL IMPLEMENTATION
 ===================
 
-* **High-Performance Computing:** Scalable Parallel Grid Search Engine (MATLAB Parallel Computing Toolbox)
+* **Parallel Computing:** Scalable Parallel Grid Search Engine (MATLAB Parallel Computing Toolbox)
 * **Algorithm:** 3D Bayesian Inference, Ray Tracing (1D), Monte Carlo simulations
 * **Analysis:** Rigorous Uncertainty Quantification (UQ), Full Posterior PDF Estimation
 * **Compatibility:** Cross-Platform (Windows, Linux, macOS), Universal Serial/Parallel execution (scalable)
@@ -83,8 +83,13 @@ The official software version is archived on Zenodo:
 7 EXAMPLE OUTPUT
 ===================
 
-The figure below illustrates the output 3D posterior Probability Density Function (PDF) with orthogonal slices 
-(Depth, N-S, E-W) passing through the Maximum Likelihood (ML) hypocenter location. 
+The computation process is monitored, and the tool informs the user in real-time about the progress and an Estimated Time of Arrival (ETA) even during heavy parallel workloads. See the example below:
+```text
+Parallel Mode (4 workers)
+Processing  13% (ETA: 00:15:08)
+```
+
+Regarding the results, the figure below illustrates the output 3D posterior Probability Density Function (PDF) with orthogonal slices (Depth, N-S, E-W) passing through the Maximum Likelihood (ML) hypocenter location. 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/loc_dark.png">
@@ -107,11 +112,6 @@ of highly asymmetric posterior PDFs.
 # Posterior Mean solution (PM)
 # Latitude, Longitude, Depth[km], Easting, Northing [km]
   34.83398  135.61483     10.076   -0.655    -1.116
-```
-The computation process is monitored and the toolbox inform the user in real-time about the progress and Estimated Time of Arrival (ETA) even during heavy parallel workloads. See example below:
-```text
-Parallel Mode (4 workers)
-Processing  13% (ETA: 00:15:08)
 ```
 
 8 COPYRIGHT
