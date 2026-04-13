@@ -1,6 +1,6 @@
 {
   "metadata": {
-  "title": "Parallelized Bayesian earthquake hypocenter location",
+  "title": "Parallel Bayesian earthquake hypocenter location",
   "description": "Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification.",
   "creators": [
     {
