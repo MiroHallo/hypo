@@ -1,6 +1,6 @@
 {
   "metadata": {
-  "title": "Bayesian earthquake hypocenter location",
+  "title": "Parallelized Bayesian earthquake hypocenter location",
   "description": "Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification.",
   "creators": [
     {
@@ -11,7 +11,7 @@
   ],
   "access_right": "open",
   "license": "gpl-3.0",
-  "keywords": ["Bayesian Inference", "Uncertainty Quantification", "Seismology", "Earthquake", "Hypocenter Location", "Body Waves", "Monte Carlo Simulation", "Seismic Source", "Probability Density Function"],
+  "keywords": ["Bayesian Inference", "Uncertainty Quantification", "Parallelized", "Scalable", "Seismology", "Earthquake", "Hypocenter Location", "Body Waves", "Monte Carlo Simulation", "Seismic Source", "Probability Density Function"],
   "related_identifiers": [
     {
       "scheme": "doi",
