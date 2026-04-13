@@ -85,7 +85,7 @@ The official software version is archived on Zenodo:
 
 The computation process is monitored, and the tool informs the user in real-time about the progress and an Estimated Time of Arrival (ETA) even during heavy parallel workloads. See the example below:
 ```text
-Parallel Mode (4 workers)
+Parallel Mode (12 workers)
 Processing  13% (ETA: 00:05:08)
 ```
 
