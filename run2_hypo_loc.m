@@ -80,6 +80,9 @@ crustName = 'example_crustal.dat';
 % Compute in homogeneous model (layered=0) or 1D layered model (layered=1)
 layered = 1;
 
+% In the case of 1D layered model, set precision of ray tracing [meters]
+DX = 5;
+
 % In the case of homogeneous model, set seismic wave velocities [km/s]
 vp = 6.4;     % P-wave velocity (homogeneous model)
 vs = vp/1.73; % S-wave velocity (homogeneous model)
@@ -209,9 +212,9 @@ parfor x = 1 : length(gridX)
                 for st = 1 : N
                     DistX = sqrt( (gridX(x)-xyz(st,1))^2 + (gridY(y)-xyz(st,2))^2 );
                     [~,tp_synth(st)] = TT(VelMod.depth*1000,VelMod.Vp*1000,...
-                                          gridZ(z)*1000,-xyz(st,3)*1000,DistX*1000,10);
+                                          gridZ(z)*1000,-xyz(st,3)*1000,DistX*1000,DX);
                     [~,ts_synth(st)] = TT(VelMod.depth*1000,VelMod.Vs*1000,...
-                                          gridZ(z)*1000,-xyz(st,3)*1000,DistX*1000,10);
+                                          gridZ(z)*1000,-xyz(st,3)*1000,DistX*1000,DX);
                 end
             else  % homogeneous model
                 for st = 1 : N
@@ -304,9 +307,9 @@ if layered == 1 % 1D layered model
     for st = 1 : N
         DistX = sqrt( (loc_res(1)-xyz(st,1))^2 + (loc_res(2)-xyz(st,2))^2 );
         [~,tp_synth(st)] = TT(VelMod.depth*1000,VelMod.Vp*1000,...
-                              loc_res(3)*1000,-xyz(st,3)*1000,DistX*1000,10);
+                              loc_res(3)*1000,-xyz(st,3)*1000,DistX*1000,DX);
         [~,ts_synth(st)] = TT(VelMod.depth*1000,VelMod.Vs*1000,...
-                              loc_res(3)*1000,-xyz(st,3)*1000,DistX*1000,10);
+                              loc_res(3)*1000,-xyz(st,3)*1000,DistX*1000,DX);
     end
 else % homogeneous model
     for st = 1 : N
@@ -471,7 +474,10 @@ max_p = max([xy2D(:); xz2D(:); yz2D(:)]);
 subplot(2,2,1)
 imagesc(gridX,gridY,xy2D');
 set(gca,'YDir','normal')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+limx = get(gca,'XLim');
+limy = get(gca,'YLim');
 colormap(dusk)
 clim([0, max_p])
 xlabel('Easting (km)')
@@ -482,7 +488,9 @@ box on;
 subplot(2,2,3)
 imagesc(gridX,gridZ,xz2D');
 set(gca,'YDir','reverse')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+set(gca,'XLim',limx)
 colormap(dusk)
 clim([0, max_p])
 xlabel('Easting (km)')
@@ -493,7 +501,9 @@ box on;
 subplot(2,2,2)
 imagesc(gridZ,gridY,yz2D);
 set(gca,'YDir','normal')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+set(gca,'YLim',limy)
 colormap(dusk)
 clim([0, max_p])
 xlabel('Depth (km)')
@@ -503,8 +513,8 @@ box on;
 % plot axis with legend
 subplot(2,2,4)
 hold on
-text(0,6,'Posterior Probability Density Function')
-text(0,5,'Cross-sections at ML/MAP solution')
+text(0,6,'Posterior PDF')
+text(0,5,'Cross-sections at ML/MAP')
 text(0,4,['Depth slice at ',num2str(gridZ(loc_index(3)),'%6.1f'),' km'])
 text(0,3,['N-S slice at Easting ',num2str(gridX(loc_index(1)),'%6.1f'),' km'])
 text(0,2,['E-W slice at Northing ',num2str(gridY(loc_index(2)),'%6.1f'),' km'])
@@ -536,7 +546,10 @@ max_p = max([xy2D(:); xz2D(:); yz2D(:)]);
 subplot(2,2,1)
 imagesc(gridX,gridY,xy2D');
 set(gca,'YDir','normal')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+limx = get(gca,'XLim');
+limy = get(gca,'YLim');
 hold on
 plot(loc_res(1),loc_res(2),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
 plot(loc_pm(1),loc_pm(2),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
@@ -551,7 +564,9 @@ box on;
 subplot(2,2,3)
 imagesc(gridX,gridZ,xz2D');
 set(gca,'YDir','reverse')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+set(gca,'XLim',limx)
 hold on
 plot(loc_res(1),loc_res(3),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
 plot(loc_pm(1),loc_pm(3),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
@@ -566,7 +581,9 @@ box on;
 subplot(2,2,2)
 imagesc(gridZ,gridY,yz2D);
 set(gca,'YDir','normal')
-axis image;
+axis equal;
+set(gca,'Color',[0.9 0.9 0.9])
+set(gca,'YLim',limy)
 hold on
 plot(loc_res(3),loc_res(2),'x','Color',[0.8 0.2 0.2],'MarkerSize',7,'LineWidth',1.1);
 plot(loc_pm(3),loc_pm(2),'o','Color',[0.2 0.2 0.8],'MarkerSize',7,'LineWidth',1.1);
