@@ -1,12 +1,12 @@
-# Bayesian earthquake hypocenter location from wave arrival times
+# Parallelized Bayesian earthquake hypocenter location from wave arrival times
 Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification
 ***************************************
 
 This toolbox provides a robust framework for 3D earthquake hypocenter localization 
-and rigorous Uncertainty Quantification (UQ) in 1D layered media. This toolbox utilizes 
-body P- and S-wave arrival times to assess hypocenter locations through a grid search 
-method. A key feature of the implementation is the estimation of arrival time 
-uncertainties via Monte Carlo simulations and ray tracing within randomly perturbed 
+and rigorous Uncertainty Quantification (UQ) in 1D layered media. It utilizes body P- and 
+S-wave arrival times to assess hypocenter locations through a high-performance, parallelized, 
+and scalable 3D grid search. Another key feature of the implementation is the estimation of arrival 
+time uncertainties via Monte Carlo simulations and ray tracing within randomly perturbed 
 velocity models. Following the probabilistic inverse theory of Tarantola (2005), these 
 uncertainties are rigorously evaluated within a Bayesian framework to determine the 
 final posterior Probability Density Function (PDF). This approach ensures that the 
@@ -29,8 +29,10 @@ Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://do
 2 TECHNICAL IMPLEMENTATION
 ===================
 
-Bayesian Inference, Grid Search (3D), Ray Tracing (1D), Monte Carlo simulations, 
-Uncertainty Quantification, Probability Density Function (PDF), Cross-Platform (Windows, Linux)
+* **High-Performance Computing:** Scalable Parallelized Grid Search Engine (MATLAB Parallel Computing Toolbox)
+* **Algorithm:** 3D Bayesian Inference, Ray Tracing (1D), Monte Carlo simulations
+* **Analysis:** Rigorous Uncertainty Quantification (UQ), Full Posterior PDF Estimation
+* **Compatibility:** Cross-Platform (Windows, Linux, macOS), Universal Serial/Parallel execution (scalable)
 
 The official software version is archived on Zenodo:
 
@@ -48,11 +50,13 @@ The official software version is archived on Zenodo:
 4 RELEASE HISTORY (MAJOR VERSIONS)
 ===================
 
-*   **2.0 — Refactored Release** | April 2026
+*   **2.1 — Refactored and Parallelized Engine** | April 2026
+    *   Scalable Parallel Engine: Parallelized PDF calculations using `parfor` from the Parallel Computing Toolbox (the code automatically scales to available CPU cores/threads)
+    *   Adaptive Execution: Runs in high-performance `Parallel Mode` if available, or falls back to `Serial Mode` without errors
     *   Processing Pipeline: Streamlined workflow into two core scripts for automated data flow
     *   Numerical Engine: Enhanced PDF stability and added Posterior Mean (PM) estimator (alongside ML/MAP)
     *   Modernization: Fully ported to MATLAB R2025b with industry-standard directory structure
-    *   UX/I-O: Robust ASCII parser, intuitive variable naming, and refined graphical reports
+    *   UX/I-O: Robust ASCII parser, refined graphical reports, and real-time progress tracking even during heavy parallel workloads
 
 *   **1.0 — Initial Release** | December 2018
     *   Core implementation used by paper published in Earth, Planets and Space (Hallo et al., 2019)
@@ -60,7 +64,11 @@ The official software version is archived on Zenodo:
 5 REQUIREMENTS
 ===================
   
-  MATLAB: Version R2025b, Codes do not require any additional Matlab Toolboxes
+  MATLAB: Version R2025b or newer
+  
+  Serial execution: Codes do not require any additional Matlab Toolboxes
+  
+  Parallel execution (Optional): Parallel Computing Toolbox (The code automatically scales to available CPU cores/threads)
 
 6 USAGE
 ===================
@@ -104,7 +112,7 @@ of highly asymmetric posterior PDFs.
 8 COPYRIGHT
 ===================
 
-Copyright (C) 2017-2019  Miroslav Hallo
+Copyright (C) 2017-2019,2026  Miroslav Hallo
 
 This program is published under the GNU General Public License (GNU GPL).
 

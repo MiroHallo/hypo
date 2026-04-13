@@ -149,13 +149,34 @@ end
 
 
 %% -------------------------------------------------------------------
+% Set up Parallel/Serial regime
+
+hasParallel = ~isempty(ver('parallel'));
+% hasParallel = 0; % DEBUGGING IN SERIAL
+
+% Inicializace parallel computation
+if hasParallel
+    % Inicializace Parallel pool
+    pool = gcp();
+    numWorkers = pool.NumWorkers;
+    fprintf('Parallel Mode (%d workers)\n', numWorkers);
+
+    % Inicializace queue
+    q = parallel.pool.DataQueue;
+    afterEach(q, @(~) updateProgress(length(gridX)));
+else
+    fprintf('Serial Mode\n');
+end
+
+% Reset progress bar
+updateProgress([], true)
+
+
+%% -------------------------------------------------------------------
 % Computing PDF in the 3D space
 
 % Number of stations
 N = length(xyz(:,1));
-
-tp_synth = zeros(1,N);
-ts_synth = zeros(1,N);
 
 % Initialize log(PDF)
 log_PDF = zeros(length(gridX), length(gridY), length(gridZ));
@@ -165,11 +186,24 @@ log_PDF = log_PDF - 1e19;
 st_p_used = tp >= 0;
 st_s_used = ts >= 0;
 
-for x = 1 : length(gridX)
-    disp(['Done: ',num2str(100* (x/length(gridX)),'%4.1f' ),'%'])
+parfor x = 1 : length(gridX)
+% for x = 1 : length(gridX) % DEBUGGING IN SERIAL
+
+    % Display progress bar
+    if hasParallel
+        send(q, x); % Send to queue
+    else
+        updateProgress(length(gridX));
+    end
+
+    local_log_PDF_x = zeros(length(gridY), length(gridZ));
+    
     for y = 1 : length(gridY)
         for z = 1 : length(gridZ)
-            
+
+            tp_synth = zeros(1,N);
+            ts_synth = zeros(1,N);
+
             % Compute synthetic times
             if layered == 1 % 1D layered model
                 for st = 1 : N
@@ -218,9 +252,10 @@ for x = 1 : length(gridX)
             end
 
             % log(PDF)
-            log_PDF(x,y,z) = log_L; 
+            local_log_PDF_x(y,z) = log_L;
         end
     end
+    log_PDF(x,:,:) = local_log_PDF_x;
 end
 
 % From log(PDF) to PDF
