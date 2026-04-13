@@ -2,7 +2,7 @@
 Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification
 ***************************************
 
-This toolbox provides a robust framework for 3D earthquake hypocenter localization 
+This tool provides a robust framework for 3D earthquake hypocenter localization 
 and rigorous Uncertainty Quantification (UQ) in 1D layered media. It utilizes body P- and 
 S-wave arrival times to assess hypocenter locations through a high-performance, parallelized, 
 and scalable 3D grid search. Another key feature of the implementation is the estimation of arrival 
@@ -97,7 +97,7 @@ Regarding the results, the figure below illustrates the output 3D posterior Prob
   <img alt="Posterior Probability Density Function" src="img/loc_light.png">
 </picture>
 
-The toolbox saves results into a structured text file. It contains precise coordinates for the Maximum 
+The tool saves results into a structured text file. It contains precise coordinates for the Maximum 
 Likelihood (ML) or Maximum A Posteriori (MAP) solutions (which are identical in this case), including standard 
 deviations (1σ) and double standard deviations (2σ) to quantify spatial uncertainty. Additionally, the output 
 includes the Posterior Mean (PM) solution, which is particularly useful for characterizing the location in cases 
