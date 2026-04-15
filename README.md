@@ -107,11 +107,11 @@ of highly asymmetric posterior PDFs.
 # --------------------------------------------------------------------
 # Maximum Likelihood solution (ML) is the same as Maximum a Posteriori solution (MAP)
 # Latitude, Longitude, Depth[km], Easting, Northing, E_sigma, N_sigma, Z_sigma, E_2sigma, N_2sigma, Z_2sigma [km]
-  34.83412  135.61489     10.050   -0.650    -1.100    0.251    0.278    0.485     0.502     0.557     0.970
+  34.83412  135.61434     10.000   -0.700    -1.100    0.178    0.197    0.344     0.355     0.394     0.687
 # --------------------------------------------------------------------
 # Posterior Mean solution (PM)
 # Latitude, Longitude, Depth[km], Easting, Northing [km]
-  34.83398  135.61483     10.076   -0.655    -1.116
+  34.83396  135.61484     10.072   -0.654    -1.118
 ```
 
 8 COPYRIGHT

@@ -350,19 +350,19 @@ marginal_yx_PDF = sum(marginal_y_PDF,1); % marginal PDF for Z direction
 % Fit the marginal by Gauss (by log, polyfit) and find sigma for X direction
 lny = log(marginal_zy_PDF);
 coeffs = polyfit(gridX, lny', 2);
-sigma = sqrt(-1/coeffs(1));
+sigma = sqrt(-1 / (2 * coeffs(1)));
 loc_xyz_sigma(1) = sigma;
 
 % Fit the marginal by Gauss (by log, polyfit) and find sigma for Y direction
 lny = log(marginal_zx_PDF);
 coeffs = polyfit(gridY, lny, 2);
-sigma = sqrt(-1/coeffs(1));
+sigma = sqrt(-1 / (2 * coeffs(1)));
 loc_xyz_sigma(2) = sigma;
 
 % Fit the marginal by Gauss (by log, polyfit) and find sigma for Z direction
 lny = log(marginal_yx_PDF);
 coeffs = polyfit(gridZ, lny, 2);
-sigma = sqrt(-1/coeffs(1));
+sigma = sqrt(-1 / (2 * coeffs(1)));
 loc_xyz_sigma(3) = sigma;
 
 
