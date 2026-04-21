@@ -7,7 +7,7 @@ Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times
 [![SOFTWARE](https://img.shields.io/badge/SOFTWARE-10.5281%2Fzenodo.19343031-%23007EC6?style=flat)](https://doi.org/10.5281/zenodo.19343031)
 
 ![MATLAB](https://img.shields.io/badge/MATLAB-%23ED7D31?style=flat)
-![HPC](https://img.shields.io/badge/HPC-Parallel%20Pool-%230076B4?style=flat)
+![HPC](https://img.shields.io/badge/HPC-Parallel%20Pool%20(CPU)-%230076B4?style=flat)
 
 ---
 
