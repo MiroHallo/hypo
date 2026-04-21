@@ -2,6 +2,13 @@
 
 Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times in a layered 1D medium including full Uncertainty Quantification.
 
+<a href="#cite"><img src="https://img.shields.io/badge/CITE%20AS-grey?style=flat" alt="Cite As"></a>
+[![PAPER](https://img.shields.io/badge/PAPER-10.1186%2Fs40623--019--1016--8-%23007EC6?style=flat)](https://doi.org/10.1186/s40623-019-1016-8)
+[![SOFTWARE](https://img.shields.io/badge/SOFTWARE-10.5281%2Fzenodo.19343031-%23007EC6?style=flat)](https://doi.org/10.5281/zenodo.19343031)
+
+![MATLAB](https://img.shields.io/badge/MATLAB-%23ED7D31?style=flat)
+![HPC](https://img.shields.io/badge/HPC-Parallel%20Pool-%230076B4?style=flat)
+
 ---
 
 This tool provides a robust framework for 3D earthquake hypocenter localization 
@@ -129,6 +136,7 @@ and don't remove their names from the code.
 You should have received a copy of the GNU General Public License along
 with this program. If not, see <http://www.gnu.org/licenses/>.
 
+<a name="cite"></a>
 ## 9 CITE AS
 
 If you use this tools suite, please cite both the original methodology paper (preferred) and the software version as follows:
