@@ -43,10 +43,6 @@ Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://do
 * **Analysis:** Rigorous Uncertainty Quantification (UQ), Full Posterior PDF Estimation
 * **Compatibility:** Cross-Platform (Windows, Linux, macOS), Universal Serial/Parallel execution (scalable)
 
-The official software version is archived on Zenodo:
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19343031.svg)](https://doi.org/10.5281/zenodo.19343031)
-
 ## 3 PACKAGE CONTENT
 
 1. `run1_pert_model.m` - Perform Monte Carlo simulations to get uncertainties of P and S-wave arrival times
