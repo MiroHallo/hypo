@@ -14,7 +14,9 @@ Robust 3D Bayesian hypocenter localization from body P- and S-wave arrival times
 This tool provides a robust framework for 3D earthquake hypocenter localization 
 and rigorous Uncertainty Quantification (UQ) in 1D layered media. It utilizes body P- and 
 S-wave arrival times to assess hypocenter locations through a high-performance, parallelized, 
-and scalable 3D grid search. Another key feature of the implementation is the estimation of arrival 
+and scalable 3D grid search. It is designed for both tectonic and induced seismicity, 
+supporting flexible station geometries including surface and deep borehole sensors.
+Another key feature of the implementation is the estimation of arrival 
 time uncertainties via Monte Carlo simulations and ray tracing within randomly perturbed 
 velocity models. Following the probabilistic inverse theory of Tarantola (2005), these 
 uncertainties are rigorously evaluated within a Bayesian framework to determine the 
@@ -26,20 +28,16 @@ applications.
 ## 1 METHODOLOGY
 
 The suite uses theory by Tarantola (2005) in the implementation by Hallo et al. (2019).
+Regarding the 
 
-  Tarantola, A. (2005, Chapter 7.1). Inverse Problem Theory and Methods 
-for Model Parameter Estimation, Society for Industrial and Applied 
-Mathematics, Philadelphia, USA.
-
-  Hallo, M., Oprsal, I., Asano, K., Gallovic, F. (2019). Seismotectonics
-of the 2018 Northern Osaka M6.1 earthquake and its aftershocks: joint
-movements on strike-slip and reverse faults in inland Japan. Earth,
-Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://doi.org/10.1186/s40623-019-1016-8)
+* Tarantola, A. (2005, Chapter 7.1). Inverse Problem Theory and Methods for Model Parameter Estimation, Society for Industrial and Applied Mathematics, Philadelphia, USA.
+* Hallo, M., Oprsal, I., Asano, K., Gallovic, F. (2019). Seismotectonics of the 2018 Northern Osaka M6.1 earthquake and its aftershocks: joint movements on strike-slip and reverse faults in inland Japan. Earth, Planets and Space, 71:34. [https://doi.org/10.1186/s40623-019-1016-8](https://doi.org/10.1186/s40623-019-1016-8)
 
 ## 2 TECHNICAL IMPLEMENTATION
 
 * **Parallel Computing:** Scalable Parallel Grid Search Engine (MATLAB Parallel Computing Toolbox)
 * **Algorithm:** 3D Bayesian Inference, Ray Tracing (1D), Monte Carlo simulations
+* **Data :** Support for surface and borehole stations (including sensors located below the source)
 * **Analysis:** Rigorous Uncertainty Quantification (UQ), Full Posterior PDF Estimation
 * **Compatibility:** Cross-Platform (Windows, Linux, macOS), Universal Serial/Parallel execution (scalable)
 
