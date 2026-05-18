@@ -81,6 +81,9 @@ The suite uses theory by Tarantola (2005) in the implementation by Hallo et al. 
 5. Set up and run the script `run2_hypo_loc.m` to evaluate the location of the hypocenter
 6. Check `/results` folder for high-resolution figures and text file with results
 
+### Server Execution
+If you run scripts on a server without a graphical user interface (e.g., Linux cluster, Docker container, or cloud instance), run it with `matlab -nodisplay -nosplash -nodesktop -r "run('run1_pert_model.m'); exit;"` and `matlab -nodisplay -nosplash -nodesktop -r "run('run2_hypo_loc.m'); exit;"`
+
 ## 7 EXAMPLE OUTPUT
 
 The computation process is monitored, and the tool informs the user in real-time about the progress and an Estimated Time of Arrival (ETA) even during heavy parallel workloads. See the example below:
